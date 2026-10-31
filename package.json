@@ -1,0 +1,13 @@
+{
+  "name": "scene-relay",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A read-only Twitch chat voting desk that changes an original browser scene.",
+  "scripts": {
+    "test": "node --test",
+    "serve": "python -m http.server 4173 --bind 127.0.0.1 --directory dist"
+  },
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}

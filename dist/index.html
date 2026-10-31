@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://id.twitch.tv https://api.twitch.tv wss://eventsub.wss.twitch.tv; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="description" content="Let your Twitch chat choose the next scene. A simple, read-only chat voting desk with clear results and original animated worlds.">
+  <title>Scene Relay — let chat set the scene</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to voting desk</a>
+  <div class="shell">
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="Scene Relay home"><svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M7 11h12v18H7zM21 7h12v18H21z" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="m14 19 9 0m-3-3 3 3-3 3" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>scene<span class="brand-light">relay</span><small>A LITTLE MORE TOGETHER</small></span></a>
+      <div class="header-actions"><span class="connection-pill" id="header-status"><span class="status-dot"></span><span id="header-status-text">Practice · offline</span></span><button class="button button-outline small" id="connect-top">Connect Twitch <span aria-hidden="true">↗</span></button></div>
+    </header>
+
+    <main id="main">
+      <section class="intro" aria-labelledby="page-title"><div><p class="eyebrow"><span></span> YOUR CHAT. ONE SHARED MOMENT.</p><h1 id="page-title">Let chat set <em>the scene.</em></h1><p class="intro-copy">Three worlds. One vote. A simple way to put your community in the picture.</p></div><div class="intro-note"><span class="tiny-number">01 → 02 → 03</span><p>Open a round.<br>Let chat choose.<br><strong>Watch the scene change.</strong></p></div></section>
+
+      <div class="mode-notice" id="mode-notice"><span class="notice-icon" aria-hidden="true">✳</span><p><strong>Practice mode — simulated votes.</strong> Explore the controls below. This is not a live Twitch connection.</p></div>
+      <p class="alert" id="error-notice" role="alert" hidden></p>
+
+      <div class="workspace">
+        <section class="preview-panel" aria-labelledby="preview-heading">
+          <div class="section-heading"><h2 id="preview-heading">The shared screen</h2><span class="subtle">ORIGINAL WORLDS, DRAWN IN YOUR BROWSER</span></div>
+          <div class="scene-stage" id="scene-stage">
+            <canvas id="scene-canvas" role="img" aria-label="Aurora: an illustrated night landscape with a moon, northern lights and rolling hills"></canvas>
+            <div class="stage-top"><span class="stage-source" id="stage-source"><span></span> PRACTICE PREVIEW</span><div class="stage-tools"><button class="icon-button" id="pause-animation" aria-label="Pause scene animation" title="Pause scene animation">Ⅱ</button><button class="icon-button" id="fullscreen" aria-label="Open full-screen scene" title="Open full-screen scene">⛶</button></div></div>
+            <div class="stage-caption"><span class="scene-index" id="scene-index">SCENE 01 / 03</span><h3 id="scene-title">Aurora</h3><p id="scene-description">A little room to wonder.</p></div>
+            <div class="stage-footer"><span id="stage-result">Your current scene</span><span class="stage-signature">scene relay <span aria-hidden="true">↗</span></span></div>
+            <button class="button button-light fullscreen-exit" id="exit-fullscreen">Back to voting desk <span aria-hidden="true">↙</span></button>
+          </div>
+          <div class="scene-choices" aria-label="Scenes available to vote for">
+            <div class="scene-card selected" data-scene="aurora"><div class="scene-swatch swatch-aurora" aria-hidden="true"><span></span></div><div><span class="choice-number">01</span><h3>Aurora</h3><code>!scene1</code></div><span class="current-label">Current</span></div>
+            <div class="scene-card" data-scene="cove"><div class="scene-swatch swatch-cove" aria-hidden="true"><span></span></div><div><span class="choice-number">02</span><h3>Coral Cove</h3><code>!scene2</code></div><span class="current-label" hidden>Current</span></div>
+            <div class="scene-card" data-scene="ember"><div class="scene-swatch swatch-ember" aria-hidden="true"><span></span></div><div><span class="choice-number">03</span><h3>Ember Grove</h3><code>!scene3</code></div><span class="current-label" hidden>Current</span></div>
+          </div>
+          <div class="screen-note"><span aria-hidden="true">↳</span><p>The winning scene appears here when a round closes. A tie keeps the current scene.</p></div>
+        </section>
+
+        <aside class="control-column" aria-label="Voting controls">
+          <section class="desk-card" aria-labelledby="round-heading">
+            <div class="card-heading"><div><p class="eyebrow">THE VOTING DESK</p><h2 id="round-heading">Make it a moment.</h2></div><span class="round-state" id="round-state">READY</span></div>
+            <fieldset class="mode-switch"><legend class="sr-only">Vote source</legend><label><input type="radio" name="source" value="practice" checked><span>Practice</span></label><label><input type="radio" name="source" value="twitch"><span>Twitch chat</span></label></fieldset>
+            <div class="round-timer"><div><span class="timer-label" id="timer-label">ROUND LENGTH</span><div class="timer" id="timer">00:45</div></div><label class="duration-label">Seconds<input id="duration" type="number" min="10" max="300" step="1" value="45" inputmode="numeric" aria-describedby="duration-help"></label></div>
+            <p class="sr-only" id="duration-help">A round can last from 10 to 300 whole seconds.</p>
+            <p class="field-error" id="duration-error" hidden></p>
+            <div class="timer-track" aria-hidden="true"><span id="timer-progress"></span></div>
+            <button class="button button-primary start-button" id="start-round">Start a practice round <span aria-hidden="true">→</span></button>
+            <button class="button button-outline stop-button" id="stop-round" hidden>Close round &amp; reveal result</button>
+            <p class="round-help" id="round-help">Try a round before connecting. No Twitch account needed.</p>
+            <div class="divider"></div>
+            <div class="results-heading"><h3>Community choice</h3><span><strong id="total-voters">0</strong> <span id="voter-word">voters</span></span></div>
+            <div class="results" id="results"></div>
+            <p class="vote-rule">One vote per viewer. A new command changes their choice.</p>
+            <div class="result-message" id="result-message"><span aria-hidden="true">↗</span><p id="result-text">Ready when you are. The most votes decides the next scene.</p></div>
+          </section>
+
+          <section class="practice-card" id="practice-card" aria-labelledby="practice-heading"><div class="practice-title"><h2 id="practice-heading">Try the chat commands</h2><span>SIMULATION</span></div><p>These buttons simulate chat. They never post to Twitch.</p><label class="practice-voter">Practice as<select id="practice-voter"><option value="demo-1">Demo viewer 1</option><option value="demo-2">Demo viewer 2</option><option value="demo-3">Demo viewer 3</option><option value="demo-4">Demo viewer 4</option></select></label><div class="practice-buttons"><button class="practice-vote" data-vote="!scene1">!scene1</button><button class="practice-vote" data-vote="!scene2">!scene2</button><button class="practice-vote" data-vote="!scene3">!scene3</button></div><p class="practice-feedback" id="practice-feedback">Start a practice round to add a simulated vote.</p></section>
+
+          <section class="live-card" id="live-card" aria-labelledby="live-heading" hidden><div class="practice-title"><h2 id="live-heading">Your Twitch connection</h2><span id="live-state">OFFLINE</span></div><p id="connection-message">Connect your own channel to receive real chat votes.</p><p class="channel-label" id="channel-label" hidden></p><div class="live-card-actions"><button class="button button-primary small" id="connect-panel">Connect Twitch ↗</button><button class="button button-outline small" id="disconnect" hidden>Disconnect</button></div><p class="privacy-note">Read-only chat. No bot replies, moderation actions or saved chat history.</p></section>
+        </aside>
+      </div>
+
+      <section class="how-it-works" aria-labelledby="how-heading"><h2 id="how-heading">A small ritual for your community.</h2><div><article><span>01</span><h3>Open the floor</h3><p>Choose the length and start a round.</p></article><article><span>02</span><h3>Let chat weigh in</h3><p>Viewers type !scene1, !scene2 or !scene3.</p></article><article><span>03</span><h3>Share the reveal</h3><p>The winning world fills your shared screen.</p></article></div></section>
+      <div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+    </main>
+    <footer><span class="footer-brand">scene relay <span aria-hidden="true">↗</span></span><p>Built with Codex. Designed for a real choice, together.</p><button class="text-button" id="privacy-button">Privacy &amp; setup</button></footer>
+  </div>
+
+  <dialog id="connect-dialog" aria-labelledby="connect-heading"><form id="connect-form" novalidate><button type="button" class="dialog-close" aria-label="Close connection settings">×</button><p class="eyebrow">YOUR CHANNEL, YOUR CHOICE</p><h2 id="connect-heading">Connect to Twitch.</h2><p class="dialog-intro">Scene Relay reads votes from your own channel. It cannot send chat messages or change your Twitch settings.</p><label class="field-label" for="client-id">Public Twitch Client ID</label><input class="wide-input" id="client-id" value="pi4u5g91unuxs6hwubc6ojocerzyca" autocomplete="off" spellcheck="false" placeholder="Public Client ID for a registered Twitch app" aria-describedby="client-help"><p class="field-help" id="client-help">The public demo is preconfigured. Change this only for a different registered app. Never paste a password or client secret.</p><div class="callback-box"><span>OAUTH REDIRECT URL FOR THIS HOST</span><code id="callback-url"></code></div><p class="field-error" id="connect-error" role="alert" hidden></p><details class="setup-details"><summary>Hosting elsewhere? Use your own Twitch app</summary><ol><li>Use your own Twitch account with a verified email and two-factor authentication.</li><li>In the <a href="https://dev.twitch.tv/console/apps" target="_blank" rel="noopener noreferrer">Twitch developer console ↗</a>, register an application with the exact redirect URL above.</li><li>Replace the public Client ID here. No client secret is needed.</li><li>Continue to Twitch and approve only <code>user:read:chat</code>.</li></ol><p>Tokens stay only in this page’s memory. Reloading or disconnecting ends the local session. Practice data and chat identities are never saved or exported.</p></details><div class="scope-note"><span aria-hidden="true">◉</span><p><strong>One permission: read your chat.</strong><br>Authorize only your own Twitch account. The public demo uses the registered Scene Relay app.</p></div><button type="submit" class="button button-primary wide-button">Continue to Twitch <span aria-hidden="true">↗</span></button></form></dialog>
+  <dialog id="privacy-dialog" aria-labelledby="privacy-heading"><button class="dialog-close" aria-label="Close privacy information">×</button><p class="eyebrow">A SMALL, READ-ONLY TOOL</p><h2 id="privacy-heading">Your chat stays yours.</h2><p>Scene Relay has no application server, analytics, paid AI calls or account database. After you connect, your browser communicates directly with Twitch to validate authorization and receive chat events.</p><p>Access tokens stay in page memory. Only temporary OAuth state and public configuration use session storage during the connection handoff. Raw chat text and viewer identities are not saved or exported. Votes use temporary viewer IDs in memory to prevent repeat counting; a new round resets them.</p><p>Practice votes are simulated and do not prove a Twitch integration. A real connection is always labelled separately. This app does not stream, send messages, moderate chat, or change OBS scenes; its own illustrated scene changes on screen.</p><p>The public demo uses the registered Scene Relay application. You authorize read-only access to your own channel. For a local or different host, register your own application with a verified email, 2FA and the correct callback URL. No Twitch subscription is required by this app.</p></dialog>
+</body>
+</html>
