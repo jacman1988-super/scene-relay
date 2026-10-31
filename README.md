@@ -55,7 +55,7 @@ No backend, secret, paid AI service, Twitch Extension or separate bot account is
 
 The entrant explicitly chose a chat vote whose result changes the on-screen scene, with simple controls and a readable result. OpenAI Codex designed and implemented the application, original CSS/canvas scenes, Twitch integration, documentation and tests, with a separate Codex agent reviewing the pure logic, security helpers and transport races. This does not claim the entrant hand-wrote the code. The authorized real Twitch check was then performed separately from the simulated tests.
 
-The browser has no model inference or generated-media API calls. All scene art is original procedural Canvas drawing. There are no third-party runtime dependencies or bundled media assets. The draft source licence is MIT; Twitch APIs and branding remain under Twitch's terms.
+The browser has no model inference or generated-media API calls. All scene art is original procedural Canvas drawing. There are no third-party runtime dependencies or bundled media assets. The source is licensed under MIT; Twitch APIs and branding remain under Twitch's terms.
 
 ## Validation boundary
 
